@@ -71,13 +71,17 @@ class EGNN(nn.Module):
         self.layers = nn.ModuleList([EGCL(hidden_nf, hidden_nf) for _ in range(num_layers)])
         self.readout = nn.Linear(hidden_nf, out_node_nf)
         
-    def forward(self, h, pos, edge_index, edge_attr=None):
+    def forward(self, h, pos, edge_index, edge_attr=None, batch=None):
         h = self.embedding(h)
         for layer in self.layers:
             h, pos = layer(h, pos, edge_index, edge_attr)
             
-        # Global pooling (e.g., mean) to predict binding affinity
-        graph_embedding = torch.mean(h, dim=0)
+        # Global pooling (e.g., mean) to predict binding affinity for each graph in batch
+        from torch_geometric.nn import global_mean_pool
+        if batch is None:
+            batch = torch.zeros(h.size(0), dtype=torch.long, device=h.device)
+            
+        graph_embedding = global_mean_pool(h, batch)
         out = self.readout(graph_embedding)
         return out, pos
 
