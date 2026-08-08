@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geometric Drug Discovery | AI Intelligence</title>
+    
+    <!-- Google Fonts for Premium Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="glass-panel sidebar">
+            <div class="logo">
+                <div class="logo-icon"></div>
+                <h1>GeometriRx</h1>
+            </div>
+            
+            <div class="section-title">Available Complexes</div>
+            <ul id="complex-list" class="complex-list">
+                <!-- Populated dynamically via JS -->
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- 3D Viewer Container -->
+            <div class="viewer-container">
+                <div id="3d-viewer" class="mol-container"></div>
+                
+                <!-- Floating Header inside Viewer -->
+                <header class="viewer-header glass-panel">
+                    <h2 id="current-complex-title">Select a Complex</h2>
+                    <p class="subtitle">Equivariant Graph Neural Network (EGNN) Prediction</p>
+                </header>
+                
+                <!-- Floating Prediction Panel -->
+                <div class="prediction-panel glass-panel">
+                    <div class="panel-header">
+                        <h3>AI Affinity Inference</h3>
+                        <button id="predict-btn" class="primary-btn pulse-btn" disabled>
+                            <span class="btn-text">Predict pKd</span>
+                            <div class="spinner hidden"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <span class="metric-label">Predicted Binding (pKd)</span>
+                            <div class="metric-value" id="pred-val">--</div>
+                        </div>
+                        <div class="metric-card">
+                            <span class="metric-label">Ground Truth (Actual)</span>
+                            <div class="metric-value" id="actual-val">--</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://3Dmol.csb.pitt.edu/build/3Dmol-min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>

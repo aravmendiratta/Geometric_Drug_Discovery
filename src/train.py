@@ -15,9 +15,9 @@ def train_egnn():
     print("Initializing EGNN Training Pipeline...")
     
     # 1. Setup Data
-    dataset_path = "data"
+    dataset_path = "data_real" if os.path.exists("data_real") else "data"
     if not os.path.exists(os.path.join(dataset_path, "labels.csv")):
-        print(f"Error: Dataset not found at {dataset_path}. Run scripts/create_mock_data.py first.")
+        print(f"Error: Dataset not found at {dataset_path}.")
         return
         
     print(f"Loading dataset from {dataset_path}...")
@@ -29,12 +29,12 @@ def train_egnn():
     in_node_nf = sample.x.shape[1]
     
     # 2. Setup Model
-    model = EGNN(in_node_nf=in_node_nf, hidden_nf=32, out_node_nf=1, num_layers=4)
-    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-4)
+    model = EGNN(in_node_nf=in_node_nf, hidden_nf=64, out_node_nf=1, num_layers=4)
+    optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
     criterion = nn.MSELoss()
     
     # 3. Training Loop
-    epochs = 10
+    epochs = 200
     print("Starting Training...")
     
     for epoch in range(epochs):
@@ -44,11 +44,18 @@ def train_egnn():
         for batch_idx, batch in enumerate(loader):
             optimizer.zero_grad()
             
+            # Normalize coordinates to prevent exploding gradients (squaring large distances causes huge loss)
+            pos = batch.pos * 0.1
+            
             # Forward pass (drop redundant edge_attr to fix shape mismatch, EGCL expects 1 dist dim)
-            out, _ = model(batch.x, batch.pos, batch.edge_index, None, batch.batch)
+            out, _ = model(batch.x, pos, batch.edge_index, None, batch.batch)
             
             loss = criterion(out, batch.y)
             loss.backward()
+            
+            # Clip gradients to prevent massive loss spikes
+            torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
+            
             optimizer.step()
             
             epoch_loss += loss.item()
